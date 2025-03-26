@@ -1,1 +1,12 @@
-manifest.json
+{
+  "manifest_version": 3,
+  "name": "Page Summarizer",
+  "version": "1.0",
+  "permissions": ["activeTab", "storage"],
+  "background": { "service_worker": "background.js" },
+  "action": { "default_popup": "popup.html" },
+  "content_scripts": [{
+    "matches": ["<all_urls>"],
+    "js": ["content.js"]
+  }]
+}
