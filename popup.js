@@ -1,38 +1,35 @@
 //Coordinates extraction → summary → display.
 document.getElementById("go").onclick = () => {
-  console.log("Summarize button clicked"); // Debug log
-  
-  document.getElementById("output").innerText = "Processing...";
+  document.getElementById("output").innerText = "Summarizing...";
   
   chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
-    console.log("Sending extract message to tab"); // Debug log
-    
     chrome.tabs.sendMessage(
       tabs[0].id,
       { action: "extract" },
       (response) => {
-        console.log("Received response from content script:", response); // Debug log
-        
         if (!response) {
-          document.getElementById("output").innerText = "Error: No response from page";
+          document.getElementById("output").innerText = "Error: Could not extract text from page";
           return;
         }
 
-        if (response.error) {
-          document.getElementById("output").innerText = `Error: ${response.error}`;
+        const { text } = response;
+        if (!text) {
+          document.getElementById("output").innerText = "Error: No text found on page";
           return;
         }
 
-        console.log("Sending text to background for summarization"); // Debug log
         chrome.runtime.sendMessage(
-          { action: "summarize", text: response.text },
-          (summaryResponse) => {
-            console.log("Received summary response:", summaryResponse); // Debug log
+          { action: "summarize", text },
+          (response) => {
+            if (chrome.runtime.lastError) {
+              document.getElementById("output").innerText = `Error: ${chrome.runtime.lastError.message}`;
+              return;
+            }
             
-            if (summaryResponse?.error) {
-              document.getElementById("output").innerText = `Error: ${summaryResponse.error}`;
-            } else if (summaryResponse?.summary) {
-              document.getElementById("output").innerText = summaryResponse.summary;
+            if (response?.error) {
+              document.getElementById("output").innerText = `Error: ${response.error}`;
+            } else if (response?.summary) {
+              document.getElementById("output").innerText = response.summary;
             } else {
               document.getElementById("output").innerText = "Error: Invalid response from summarizer";
             }
