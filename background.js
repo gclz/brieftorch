@@ -13,16 +13,40 @@ async function summarize(text, isFinalSummary = false) {
 
   const endpoint = "https://api.openai.com/v1/chat/completions";
   
-  // Different prompts for initial chunking vs final summary
   const prompt = isFinalSummary ? 
-    `Combine and synthesize these summaries into a single coherent summary. Remove any redundancies and organize the key points:
+    `Synthesize these summaries into a single structured summary using exactly this format:
 
+**Main Points:**
+- [Key point 1]
+- [Key point 2]
+- [Key point 3]
+
+**Key Findings:**
+- [Finding 1]
+- [Finding 2]
+- [Finding 3]
+
+**Implications:**
+- [What this means 1]
+- [What this means 2]
+
+Text to synthesize:
 ${text}` :
-    `Analyze and summarize the main points from this text. Focus on:
-- Core arguments and insights
-- Key findings or conclusions
-- Important supporting evidence
-- Any significant implications
+    `Summarize this text using exactly this format:
+
+**Main Points:**
+- [Key point 1]
+- [Key point 2]
+- [Key point 3]
+
+**Key Findings:**
+- [Finding 1]
+- [Finding 2]
+- [Finding 3]
+
+**Implications:**
+- [What this means 1]
+- [What this means 2]
 
 Text to analyze:
 ${text}`;
@@ -32,7 +56,7 @@ ${text}`;
     messages: [
       {
         role: "system",
-        content: "You are a skilled analyst focused on extracting key insights. Present your summary in bullet points, focusing on the main arguments, key findings, and important conclusions. Be concise but comprehensive."
+        content: "You are a precise summarizer. Always use the exact format provided. Be clear and concise. If a section has no relevant information, write 'No specific [points/findings/implications] found in the text.'"
       },
       {
         role: "user",
