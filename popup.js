@@ -1,6 +1,8 @@
 //Coordinates extraction → summary → display.
 document.getElementById("go").onclick = () => {
-  document.getElementById("output").innerText = "Summarizing...";
+  const outputEl = document.getElementById("output");
+  outputEl.className = 'loading';
+  outputEl.innerHTML = "Summarizing...";
   
   chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
     chrome.tabs.sendMessage(
@@ -8,30 +10,48 @@ document.getElementById("go").onclick = () => {
       { action: "extract" },
       (response) => {
         if (!response) {
-          document.getElementById("output").innerText = "Error: Could not extract text from page";
+          outputEl.className = '';
+          outputEl.innerHTML = "Error: Could not extract text from page";
           return;
         }
 
         const { text } = response;
         if (!text) {
-          document.getElementById("output").innerText = "Error: No text found on page";
+          outputEl.className = '';
+          outputEl.innerHTML = "Error: No text found on page";
           return;
         }
 
         chrome.runtime.sendMessage(
           { action: "summarize", text },
           (response) => {
+            outputEl.className = '';
+            
             if (chrome.runtime.lastError) {
-              document.getElementById("output").innerText = `Error: ${chrome.runtime.lastError.message}`;
+              outputEl.innerHTML = `Error: ${chrome.runtime.lastError.message}`;
               return;
             }
             
             if (response?.error) {
-              document.getElementById("output").innerText = `Error: ${response.error}`;
+              outputEl.innerHTML = `Error: ${response.error}`;
             } else if (response?.summary) {
-              document.getElementById("output").innerText = response.summary;
+              // Clean up extra newlines before parsing markdown
+              const cleanedSummary = response.summary
+                .replace(/\n\s*\n\s*\n/g, '\n\n') // Replace multiple newlines with double newlines
+                .trim();
+
+              // Convert markdown to HTML
+              try {
+                const htmlContent = marked.parse(cleanedSummary, {
+                  breaks: true,
+                  gfm: true
+                });
+                outputEl.innerHTML = htmlContent;
+              } catch (e) {
+                outputEl.innerHTML = cleanedSummary;
+              }
             } else {
-              document.getElementById("output").innerText = "Error: Invalid response from summarizer";
+              outputEl.innerHTML = "Error: Invalid response from summarizer";
             }
           }
         );
