@@ -16,7 +16,8 @@
       font-weight: 500;
     }
     input[type="text"],
-    input[type="password"] {
+    input[type="password"],
+    select {
       width: 300px;
       padding: 8px;
       border: 1px solid #ccc;
@@ -33,15 +34,21 @@
     button:hover {
       background-color: #1976D2;
     }
-    .endpoint-toggle {
-      margin-bottom: 16px;
-    }
   </style>
 </head>
 <body>
   <div class="form-group">
     <label>OpenAI API Key:</label>
     <input type="password" id="apiKey">
+  </div>
+
+  <div class="form-group">
+    <label>Model:</label>
+    <select id="model">
+      <option value="gpt-3.5-turbo">ChatGPT-3.5 Turbo</option>
+      <option value="gpt-4o">ChatGPT-4o</option>
+      <!--<option value="o3-mini">o3-mini</option>-->
+    </select>
   </div>
 
   <div class="endpoint-toggle">

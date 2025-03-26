@@ -2,15 +2,22 @@
 let OPENAI_KEY = "";
 let USE_CUSTOM_ENDPOINT = false;
 let API_ENDPOINT = "https://api.openai.com/v1/chat/completions";
+let MODEL = "gpt-3.5-turbo";
 
 // Initialize settings from storage
-chrome.storage.local.get(['openai_key', 'use_custom_endpoint', 'api_endpoint'], function(result) {
-  OPENAI_KEY = result.openai_key;
-  USE_CUSTOM_ENDPOINT = result.use_custom_endpoint;
-  if (USE_CUSTOM_ENDPOINT && result.api_endpoint) {
-    API_ENDPOINT = result.api_endpoint;
+chrome.storage.local.get(
+  ['openai_key', 'use_custom_endpoint', 'api_endpoint', 'model'], 
+  function(result) {
+    OPENAI_KEY = result.openai_key;
+    USE_CUSTOM_ENDPOINT = result.use_custom_endpoint;
+    if (USE_CUSTOM_ENDPOINT && result.api_endpoint) {
+      API_ENDPOINT = result.api_endpoint;
+    }
+    if (result.model) {
+      MODEL = result.model;
+    }
   }
-});
+);
 
 async function summarize(text, isFinalSummary = false) {
   if (!OPENAI_KEY) {
@@ -58,7 +65,7 @@ Text to analyze:
 ${text}`;
 
   const payload = {
-    model: "gpt-3.5-turbo",
+    model: MODEL,
     messages: [
       {
         role: "system",
