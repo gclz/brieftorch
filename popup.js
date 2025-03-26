@@ -1,3 +1,22 @@
+// Function to check for cached summary when popup opens
+function loadCachedSummary() {
+  chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+    const currentUrl = tabs[0].url;
+    const outputEl = document.getElementById("output");
+
+    chrome.storage.local.get(['summaries'], function(result) {
+      const summaries = result.summaries || {};
+      if (summaries[currentUrl]) {
+        outputEl.className = '';
+        outputEl.innerHTML = summaries[currentUrl];
+      }
+    });
+  });
+}
+
+// Load cached summary when popup opens
+document.addEventListener('DOMContentLoaded', loadCachedSummary);
+
 //Coordinates extraction → summary → display.
 document.getElementById("go").onclick = () => {
   const outputEl = document.getElementById("output");
@@ -5,6 +24,9 @@ document.getElementById("go").onclick = () => {
   outputEl.innerHTML = "Summarizing...";
   
   chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+    const currentUrl = tabs[0].url;
+
+    // Generate new summary
     chrome.tabs.sendMessage(
       tabs[0].id,
       { action: "extract" },
@@ -37,8 +59,8 @@ document.getElementById("go").onclick = () => {
             } else if (response?.summary) {
               // Clean up extra newlines and add spacing between sections
               const cleanedSummary = response.summary
-                .replace(/\n\s*\n\s*\n/g, '\n\n') // Replace multiple newlines with double newlines
-                .replace(/(\*\*[^*]+:\*\*)/g, '\n$1\n') // Add newlines around section headers
+                .replace(/\n\s*\n\s*\n/g, '\n\n')
+                .replace(/(\*\*[^*]+:\*\*)/g, '\n$1\n')
                 .trim();
 
               // Convert markdown to HTML
@@ -48,6 +70,16 @@ document.getElementById("go").onclick = () => {
                   gfm: true
                 });
                 outputEl.innerHTML = htmlContent;
+
+                // Save the summary for this URL
+                chrome.storage.local.get(['summaries'], function(result) {
+                  const summaries = result.summaries || {};
+                  summaries[currentUrl] = htmlContent;
+                  chrome.storage.local.set({ summaries: summaries }, () => {
+                    console.log('Summary saved for:', currentUrl);
+                  });
+                });
+
               } catch (e) {
                 outputEl.innerHTML = cleanedSummary;
               }
