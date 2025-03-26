@@ -35,9 +35,10 @@ document.getElementById("go").onclick = () => {
             if (response?.error) {
               outputEl.innerHTML = `Error: ${response.error}`;
             } else if (response?.summary) {
-              // Clean up extra newlines before parsing markdown
+              // Clean up extra newlines and add spacing between sections
               const cleanedSummary = response.summary
                 .replace(/\n\s*\n\s*\n/g, '\n\n') // Replace multiple newlines with double newlines
+                .replace(/(\*\*[^*]+:\*\*)/g, '\n$1\n') // Add newlines around section headers
                 .trim();
 
               // Convert markdown to HTML
