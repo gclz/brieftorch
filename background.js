@@ -88,7 +88,20 @@ ${text}`;
     },
     body: JSON.stringify(payload)
   });
+
   const data = await resp.json();
+
+  // Add error handling for API response
+  if (!resp.ok) {
+    console.error('API Error:', data);
+    throw new Error(data.error?.message || 'API request failed');
+  }
+
+  if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+    console.error('Unexpected API response:', data);
+    throw new Error('Invalid response format from API');
+  }
+
   return data.choices[0].message.content;
 }
 
