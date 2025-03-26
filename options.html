@@ -1,9 +1,63 @@
 <!DOCTYPE html>
 <html>
-<head><title>Summarizer Options</title></head>
+<head>
+  <title>Summarizer Options</title>
+  <style>
+    body {
+      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    input[type="text"],
+    input[type="password"] {
+      width: 300px;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      background-color: #2196F3;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #1976D2;
+    }
+    .endpoint-toggle {
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
 <body>
-  <label>OpenAI API Key: <input type="password" id="apiKey"></label>
+  <div class="form-group">
+    <label>OpenAI API Key:</label>
+    <input type="password" id="apiKey">
+  </div>
+
+  <div class="endpoint-toggle">
+    <label>
+      <input type="checkbox" id="useCustomEndpoint">
+      Use custom endpoint
+    </label>
+  </div>
+
+  <div class="form-group" id="endpointGroup" style="display: none;">
+    <label>Custom API Endpoint:</label>
+    <input type="text" id="apiEndpoint" placeholder="https://your-custom-endpoint/v1/chat/completions">
+  </div>
+
   <button id="save">Save</button>
+
   <script src="options.js"></script>
 </body>
 </html>
